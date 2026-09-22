@@ -33,4 +33,3 @@ const newsSchema = new mongoose.Schema({
 newsSchema.plugin(mongoosePaginate)
 
 module.exports = mongoose.model('News', newsSchema);
-
