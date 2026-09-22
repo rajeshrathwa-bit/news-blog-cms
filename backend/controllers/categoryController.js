@@ -1,16 +1,16 @@
 const categoryModel = require('../models/Category');
-const newsModel = require('../models/News')
-const createError = require('../utils/error-message')
-const { validationResult } = require('express-validator')
+const newsModel = require('../models/News');
+const createError = require('../utils/error-message');
+const { validationResult } = require('express-validator');
 
 const allCategory = async (req, res, next) => {
   try {
-    const categories = await categoryModel.find()
-    res.json(categories)
+    const categories = await categoryModel.find();
+    res.json(categories);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const getCategory = async (req, res, next) => {
   try {
@@ -18,11 +18,11 @@ const getCategory = async (req, res, next) => {
     if (!category) {
       return next(createError('Category not found', 404));
     }
-    res.json(category)
+    res.json(category);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const addCategory = async (req, res, next) => {
   const errors = validationResult(req);
@@ -31,15 +31,15 @@ const addCategory = async (req, res, next) => {
   }
 
   try {
-    const category = await categoryModel.create(req.body)
+    const category = await categoryModel.create(req.body);
     res.status(201).json({ success: true, category });
   } catch (error) {
     if (error.code === 11000) {
       return next(createError('Category already exists', 400));
     }
-    next(error)
+    next(error);
   }
-}
+};
 
 const updateCategory = async (req, res, next) => {
   const id = req.params.id;
@@ -61,9 +61,9 @@ const updateCategory = async (req, res, next) => {
     await category.save();
     res.json({ success: true, category });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const deleteCategory = async (req, res, next) => {
   const id = req.params.id;
@@ -81,9 +81,9 @@ const deleteCategory = async (req, res, next) => {
     await category.deleteOne();
     res.json({ success: true });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   allCategory,
@@ -91,4 +91,4 @@ module.exports = {
   addCategory,
   updateCategory,
   deleteCategory
-}
+};
