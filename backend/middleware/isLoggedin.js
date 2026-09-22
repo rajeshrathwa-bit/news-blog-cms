@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
 const createError = require('../utils/error-message');
 
-const isLoggedIn = (req, res, next) => {
+const isLoggedIn = async (req, res, next) => {
   try {
     const token = req.cookies.token;
+
     if (!token) {
       return next(createError('Unauthorized', 401));
     }
