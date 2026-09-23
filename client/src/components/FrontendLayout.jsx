@@ -8,7 +8,14 @@ function FrontendLayout() {
 
   useEffect(() => {
     api("/site")
-      .then((data) => setSite(data))
+      .then((data) => {
+        setSite(data);
+        const title =
+          data.settings && data.settings.website_title
+            ? data.settings.website_title
+            : "News";
+        document.title = title;
+      })
       .catch(() => setSite({ settings: null, latestNews: [], categories: [] }));
   }, []);
 
