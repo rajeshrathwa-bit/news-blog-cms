@@ -7,6 +7,7 @@ const newsModel = require('../models/News');
 const categoryModel = require('../models/Category');
 const settingModel = require('../models/Setting');
 const createError = require('../utils/error-message')
+const cache = require('../utils/cache')
 const fs = require('fs')
 const path = require('path')
 
@@ -105,6 +106,7 @@ const updateSettings = async (req, res, next) => {
     }
 
     await setting.save();
+    cache.del('settings');
     res.json({ success: true, settings: setting });
   } catch (error) {
     next(error)

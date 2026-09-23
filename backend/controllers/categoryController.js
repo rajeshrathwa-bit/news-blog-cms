@@ -1,6 +1,7 @@
 const categoryModel = require('../models/Category');
 const newsModel = require('../models/News');
 const createError = require('../utils/error-message');
+const cache = require('../utils/cache');
 const { validationResult } = require('express-validator');
 
 const allCategory = async (req, res, next) => {
@@ -32,6 +33,7 @@ const addCategory = async (req, res, next) => {
 
   try {
     const category = await categoryModel.create(req.body);
+    cache.del('categories');
     res.status(201).json({ success: true, category });
   } catch (error) {
     if (error.code === 11000) {
@@ -59,6 +61,7 @@ const updateCategory = async (req, res, next) => {
     category.description = req.body.description || '';
 
     await category.save();
+    cache.del(['categories', 'latestNews']);
     res.json({ success: true, category });
   } catch (error) {
     next(error);
@@ -79,6 +82,7 @@ const deleteCategory = async (req, res, next) => {
     }
 
     await category.deleteOne();
+    cache.del('categories');
     res.json({ success: true });
   } catch (error) {
     next(error);

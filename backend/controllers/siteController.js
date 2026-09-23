@@ -5,6 +5,7 @@ const settingModel = require('../models/Setting');
 const commentModel = require('../models/Comment');
 const paginate = require('../utils/paginate')
 const createError = require('../utils/error-message')
+const cache = require('../utils/cache');
 
 const newsPopulate = [
   { path: 'category', select: 'name slug' },
@@ -13,14 +14,24 @@ const newsPopulate = [
 
 const siteData = async (req, res, next) => {
   try {
-    const settings = await settingModel.findOne();
-    const latestNews = await newsModel.find()
-      .populate('category', { 'name': 1, 'slug': 1 })
-      .populate('author', 'fullname')
-      .sort({ createdAt: -1 }).limit(5);
+    let settings = cache.get('settings');
+    let latestNews = cache.get('latestNews');
+    let categories = cache.get('categories');
 
-    const categoriesInUse = await newsModel.distinct('category');
-    const categories = await categoryModel.find({ '_id': { $in: categoriesInUse } });
+    if (!settings || !latestNews || !categories) {
+      settings = await settingModel.findOne().lean();
+      latestNews = await newsModel.find()
+        .populate('category', { 'name': 1, 'slug': 1 })
+        .populate('author', 'fullname')
+        .sort({ createdAt: -1 }).limit(5).lean();
+
+      const categoriesInUse = await newsModel.distinct('category');
+      categories = await categoryModel.find({ '_id': { $in: categoriesInUse } }).lean();
+
+      cache.set('settings', settings, 3600);
+      cache.set('latestNews', latestNews, 3600);
+      cache.set('categories', categories, 3600);
+    }
 
     res.json({ settings, latestNews, categories });
   } catch (error) {

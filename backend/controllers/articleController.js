@@ -4,6 +4,7 @@ const userModel = require('../models/User');
 const fs = require('fs')
 const path = require('path')
 const createError = require('../utils/error-message');
+const cache = require('../utils/cache');
 const { validationResult } = require('express-validator')
 
 const allArticle = async (req, res, next) => {
@@ -59,6 +60,7 @@ const addArticle = async (req, res, next) => {
       image: req.file.filename
     });
     await article.save();
+    cache.del(['latestNews', 'categories']);
     res.status(201).json({ success: true, article });
   } catch (error) {
     next(error)
@@ -97,6 +99,7 @@ const updateArticle = async (req, res, next) => {
     }
 
     await article.save();
+    cache.del(['latestNews', 'categories']);
     res.json({ success: true, article });
   } catch (error) {
     next(error)
@@ -125,6 +128,7 @@ const deleteArticle = async (req, res, next) => {
     }
 
     await article.deleteOne()
+    cache.del(['latestNews', 'categories']);
     res.json({ success: true });
   } catch (error) {
     next(error)
